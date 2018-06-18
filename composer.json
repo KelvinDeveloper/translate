@@ -1,0 +1,10 @@
+{
+  "name": "kelvinsouza/translate",
+  "description": "Tradução automática para Laravel.",
+  "license": "MIT",
+  "type": "lib",
+  "require": {
+    "stichoza/google-translate-php": "~3.2",
+    "predis/predis": "^1.1"
+  }
+}
