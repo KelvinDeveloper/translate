@@ -20,11 +20,12 @@ trait TranslateStore
 
         $Translate = Translate::where($sourceLanguageCode, $sourceLanguageText)->first();
         if (! $Translate) $Translate = new Translate;
+        if (! empty($Translate->{$targetLanguageCode})) return true;
 
         $Translate->{$sourceLanguageCode} = $sourceLanguageText;
         $Translate->{$targetLanguageCode} = $targetLanguageText;
 
-        $Translate->save();
+        return $Translate->save();
     }
 
     private function saveTranslateRedis($sourceLanguageText, $targetLanguageText, $targetLanguageCode)

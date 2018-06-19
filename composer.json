@@ -5,6 +5,7 @@
   "type": "lib",
   "require": {
     "stichoza/google-translate-php": "~3.2",
-    "predis/predis": "^1.1"
+    "predis/predis": "^1.1",
+    "aws/aws-sdk-php-laravel": "~3.0"
   }
 }

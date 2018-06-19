@@ -41,7 +41,7 @@ class Translate extends Command
                 if (! empty($item->{$languageDB})) continue;
                 if ($language == $default) continue;
 
-                $translate = (new TranslateController)->translate($defaultText, $default, $language);
+                $translate = (new TranslateController)->translate($defaultText, $default, $language, false);
                 $item->{$languageDB} = $translate;
             }
 

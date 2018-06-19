@@ -11,10 +11,17 @@ class TranslateController extends Controller
     use TranslateStore;
 
     private $default_language = '';
+    private $debug = null;
 
     public function __construct()
     {
         $this->default_language = config('translate.default');
+        $this->debug = config('translate.debug');
+    }
+
+    public function getLanguage ()
+    {
+        return 'pt';
     }
 
     public function httpTranslate (Request $request)
@@ -30,24 +37,28 @@ class TranslateController extends Controller
         return $this->translate($request->Text, $this->default_language, $request->TargetLanguageCode);
     }
 
-    public function translate ($text, $sourceLanguageCode, $targetLanguageCode)
+    public function translate ($text, $sourceLanguageCode, $targetLanguageCode=false, $forceReturn=true)
     {
+        if (! $sourceLanguageCode) $sourceLanguageCode = $this->default_language;
+
         if ($redis = $this->getTranslateRedis($text, $targetLanguageCode))
-            return $redis;
+            return addslashes($redis);
+
+        if ($aws = $this->getTranslateAws($text, $sourceLanguageCode, $targetLanguageCode))
+            return addslashes($aws);
 
         if ($google = $this->getTranslateGoogle($text, $sourceLanguageCode, $targetLanguageCode))
-            return $google;
+            return addslashes($google);
 
-        return $text;
+        return $forceReturn ? addslashes($text) : '';
     }
 
     private function getTranslateRedis ($text,  $targetLanguageCode)
     {
         try {
-            $redis = \Redis::get("translate.{$targetLanguageCode}", $text);
+            $redis = \Redis::get("translate.{$targetLanguageCode}.{$text}");
             return $redis;
         } catch (\Exception $e) { return false; }
-        return false;
     }
 
     private function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
@@ -58,6 +69,26 @@ class TranslateController extends Controller
             $google = TranslateClient::translate($sourceLanguageCode, $targetLanguageCode, $text);
             $this->saveTranslate($text, $google, $sourceLanguageCode, $targetLanguageCode);
             return $google;
-        } catch (\Exception $e) { return false; }
+        } catch (\Exception $e) {
+             if ($this->debug) dd($e->getMessage(), $e->getFile(), $e->getLine());
+            return false;
+        }
+    }
+
+    private function getTranslateAws ($text, $sourceLanguageCode, $targetLanguageCode)
+    {
+        try {
+            $aws = \AWS::createClient('translate');
+            $translate = $aws->translateText([
+                'SourceLanguageCode'    =>  $sourceLanguageCode,
+                'TargetLanguageCode'    =>  $targetLanguageCode,
+                'Text'                  =>  $text
+            ]);
+            $this->saveTranslate($text, $translate['TranslatedText'], $sourceLanguageCode, $targetLanguageCode);
+            return $translate['TranslatedText'];
+        } catch (\Exception $e) {
+            if ($this->debug) dd($e->getMessage(), $e->getFile(), $e->getLine());
+            return false;
+        }
     }
 }

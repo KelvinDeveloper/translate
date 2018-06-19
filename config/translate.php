@@ -2,6 +2,7 @@
 
 return [
     'table'     =>  'translates',
+    'debug'     =>  env('TRANSLATE_DEBUG', true),
     'default'   =>  'en',
     /* Language Support (Google Translate) */
     'languages' => [
@@ -76,8 +77,7 @@ return [
         'Pashto'                => 'ps',
         'Persian'               => 'fa',
         'Polish'                => 'pl',
-        'Portuguese (Portugal)' => 'pt',
-        'Portuguese (Brazil)'   => 'pt-BR',
+        'Portuguese'            => 'pt',
         'Punjabi'               => 'pa',
         'Romanian'              => 'ro',
         'Russian'               => 'ru',

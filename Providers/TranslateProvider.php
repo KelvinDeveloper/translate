@@ -21,6 +21,7 @@ class TranslateProvider extends ServiceProvider
         $this->commands([
             \Translate\Console\Translate::class
         ]);
+        include __DIR__ . './../helpers/helpers.php';
     }
     /**
      * Register the application services.
