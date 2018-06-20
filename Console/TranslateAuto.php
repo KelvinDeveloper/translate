@@ -12,14 +12,14 @@ class Translate extends Command
      *
      * @var string
      */
-    protected $signature = 'translate';
+    protected $signature = 'translate:auto';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Display an inspiring quote';
+    protected $description = 'Traduz todos os termos gravados no banco para todos os idiomas listados no config/translate.php';
 
     /**
      * Execute the console command.
