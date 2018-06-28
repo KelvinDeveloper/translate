@@ -5,14 +5,14 @@ namespace Translate\Console;
 use Illuminate\Console\Command;
 use Translate\Http\Controllers\TranslateController;
 
-class Translate extends Command
+class TranslateAuto extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'translate:auto';
+    protected $signature = 'translate:auto {language?}';
 
     /**
      * The console command description.
@@ -28,13 +28,14 @@ class Translate extends Command
      */
     public function handle()
     {
-        $default  = config('translate.default');
+        $default   = config('translate.default');
+        $languages = $this->argument('language') ? [$this->argument('language')] : config('translate.languages');
 
         foreach (\Translate\Translate::get() as $item) {
 
             $defaultText = $item->{$default};
 
-            foreach (config('translate.languages') as $language) {
+            foreach ($languages as $language) {
 
                 $languageDB  = str_replace('-', '_', strtolower($language));
 

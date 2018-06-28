@@ -3,25 +3,25 @@
 namespace Translate\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Dedicated\GoogleTranslate\Translator;
 use Illuminate\Http\Request;
-use Stichoza\GoogleTranslate\TranslateClient;
 
 class TranslateController extends Controller
 {
     use TranslateStore;
 
     private $default_language = '';
-    private $debug = null;
+    private $debug            = null;
+    private $cache_driver     = null;
+    private $translate_driver = null;
 
     public function __construct()
     {
-        $this->default_language = config('translate.default');
-        $this->debug = config('translate.debug');
-    }
-
-    public function getLanguage ()
-    {
-        return 'pt';
+        $this->default_language = config('translate.default', 'en');
+        $this->debug = config('translate.debug', false);
+        $cache_driver = "Translate\Console\Drivers\Translate" . config('translate.cache_driver');
+        $this->cache_driver     = new $cache_driver;
+        $this->translate_driver = config('translate.translate_driver');
     }
 
     public function httpTranslate (Request $request)
@@ -41,24 +41,30 @@ class TranslateController extends Controller
     {
         if (! $sourceLanguageCode) $sourceLanguageCode = $this->default_language;
 
-        if ($redis = $this->getTranslateRedis($text, $targetLanguageCode))
-            return addslashes($redis);
+//        if ($redis = $this->getTranslate($text, $targetLanguageCode))
+//            return $redis;
 
-        if ($aws = $this->getTranslateAws($text, $sourceLanguageCode, $targetLanguageCode))
-            return addslashes($aws);
+        foreach ($this->translate_driver as $driver) {
 
-        if ($google = $this->getTranslateGoogle($text, $sourceLanguageCode, $targetLanguageCode))
-            return addslashes($google);
+            try {
+                if ($translate = $this->{'getTranslate' . ucfirst(strtolower(trim($driver)))}($text, $sourceLanguageCode, $targetLanguageCode))
+                    return $translate;
+            } catch (\Exception $e) {
+                if ($this->debug) var_dump($e->getMessage(), $e->getFile(), $e->getLine());
+            }
+        }
 
         return $forceReturn ? addslashes($text) : '';
     }
 
-    private function getTranslateRedis ($text,  $targetLanguageCode)
+    private function getTranslate ($text,  $targetLanguageCode)
     {
         try {
-            $redis = \Redis::get("translate.{$targetLanguageCode}.{$text}");
-            return $redis;
-        } catch (\Exception $e) { return false; }
+            $translate = $this->cache_driver->get("translate.{$targetLanguageCode}.{$text}");
+            return $translate;
+        } catch (\Exception $e) {
+            if ($this->debug) var_dump($e->getMessage(), $e->getFile(), $e->getLine());
+        }
     }
 
     private function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
@@ -66,11 +72,14 @@ class TranslateController extends Controller
         if (! in_array($targetLanguageCode, config('translate.languages'))) abort(500, "Code {$targetLanguageCode} not supported");
 
         try {
-            $google = TranslateClient::translate($sourceLanguageCode, $targetLanguageCode, $text);
-            $this->saveTranslate($text, $google, $sourceLanguageCode, $targetLanguageCode);
-            return $google;
+            $google = new Translator;
+            $google->setSourceLang($sourceLanguageCode);
+            $google->setTargetLang($targetLanguageCode);
+            $translate = $google->translate($text);
+            $this->saveTranslate($text, $translate, $sourceLanguageCode, $targetLanguageCode);
+            return $translate;
         } catch (\Exception $e) {
-             if ($this->debug) dd($e->getMessage(), $e->getFile(), $e->getLine());
+             if ($this->debug) var_dump($e->getMessage(), $e->getFile(), $e->getLine());
             return false;
         }
     }
@@ -87,7 +96,7 @@ class TranslateController extends Controller
             $this->saveTranslate($text, $translate['TranslatedText'], $sourceLanguageCode, $targetLanguageCode);
             return $translate['TranslatedText'];
         } catch (\Exception $e) {
-            if ($this->debug) dd($e->getMessage(), $e->getFile(), $e->getLine());
+            if ($this->debug) var_dump($e->getMessage(), $e->getFile(), $e->getLine());
             return false;
         }
     }

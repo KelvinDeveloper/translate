@@ -4,7 +4,7 @@
   "license": "MIT",
   "type": "lib",
   "require": {
-    "stichoza/google-translate-php": "~3.2",
+    "aurawindsurfing/google-translate": "*",
     "predis/predis": "^1.1",
     "aws/aws-sdk-php-laravel": "~3.0"
   }

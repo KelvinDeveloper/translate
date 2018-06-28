@@ -4,6 +4,13 @@ return [
     'table'     =>  'translates',
     'debug'     =>  env('TRANSLATE_DEBUG', true),
     'default'   =>  'en',
+    'cache_driver'     =>  'redis',
+    'translate_driver' => ['AWS'], // [AWS, Google]
+    'url_path'  =>  'translate',
+    'origin_path' => [
+//        'app/Http/Controllers/',
+        'resources/views/'
+    ],
     /* Language Support (Google Translate) */
     'languages' => [
         'Afrikaans'             => 'af',

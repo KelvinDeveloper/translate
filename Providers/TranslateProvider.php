@@ -19,7 +19,9 @@ class TranslateProvider extends ServiceProvider
             __DIR__ . '/../migrations' => $this->app->databasePath() . '/migrations'
         ], 'migrations');
         $this->commands([
-            \Translate\Console\Translate::class
+            \Translate\Console\TranslateAuto::class,
+            \Translate\Console\TranslateSync::class,
+            \Translate\Console\TranslateUpdate::class,
         ]);
         include __DIR__ . './../helpers/helpers.php';
     }

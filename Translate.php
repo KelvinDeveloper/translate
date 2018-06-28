@@ -13,6 +13,6 @@ class Translate extends Model
     public function __construct()
     {
         $this->table = config('translate.table');
-        $this->fillable = array_merge(config('translate.languages'), ['verify']);
+        $this->fillable = array_merge(config('translate.languages'));
     }
 }
