@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTranslates extends Migration
+class CreateTranslations extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateTranslates extends Migration
     {
         $default  = str_replace('-', '_', strtolower(config('translate.default')));
 
-        Schema::create('translates', function (Blueprint $table) use ($default) {
+        Schema::create('translations', function (Blueprint $table) use ($default) {
 
             $table->engine = 'MyISAM';
 
@@ -40,6 +40,6 @@ class CreateTranslates extends Migration
      */
     public function down()
     {
-        Schema::drop('translates');
+        Schema::drop('translations');
     }
 }

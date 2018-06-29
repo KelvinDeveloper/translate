@@ -41,8 +41,8 @@ class TranslateController extends Controller
     {
         if (! $sourceLanguageCode) $sourceLanguageCode = $this->default_language;
 
-//        if ($redis = $this->getTranslate($text, $targetLanguageCode))
-//            return $redis;
+        if ($redis = $this->getTranslate($text, $targetLanguageCode))
+            return $redis;
 
         foreach ($this->translate_driver as $driver) {
 

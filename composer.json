@@ -1,6 +1,12 @@
 {
   "name": "kelvinsouza/translate",
   "description": "Tradução automática para Laravel.",
+  "authors": [
+    {
+      "name": "Kelvin Souza",
+      "email": "kelvin.developer@icloud.com"
+    }
+  ],
   "license": "MIT",
   "type": "lib",
   "require": {

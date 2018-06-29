@@ -11,6 +11,10 @@
             list-style: none;
             margin: 0 10px;
         }
+        .options {
+            padding: 10px;
+            text-align: right;
+        }
         table {
             width: 100%;
             text-align: left;
@@ -35,7 +39,6 @@
         table tr:not(.pending) .material-icons {
             opacity: 0 !important;
         }
-
     </style>
 </head>
 <body>
@@ -75,9 +78,22 @@
         </div>
     </header>
 
+    <div class="options">
+        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2" style="margin-right: 5px;">
+            <input type="radio" id="option-2" class="mdl-radio__button" name="options" value="2" checked onchange="showing($(this))">
+            <span class="mdl-radio__label">Não revisados</span>
+        </label>
+
+        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
+            <input type="radio" id="option-1" class="mdl-radio__button" name="options" value="1" checked onchange="showing($(this))">
+            <span class="mdl-radio__label">Tudo</span>
+        </label>
+    </div>
+
     <table class="mdl-data-table mdl-shadow--2dp">
         <thead>
-        <th>{{ array_search(config('translate.default'), config('translate.languages')) }}</th>
+        <th style="width: 50px">Revisado</th>
+        <th style="width: 25%">{{ array_search(config('translate.default'), config('translate.languages')) }}</th>
         <th>
             <select>
                 @foreach(config('translate.languages') as $lang => $code)
@@ -90,7 +106,13 @@
         <tbody>
         @foreach(\Translate\Translate::orderBy('id_lang', 'ASC')->get(['id_lang', config('translate.default'), $translate_lang]) as $translate)
             <tr data-id="{{ $translate->id_lang }}" data-search="{{ strtolower( removeAccents ($translate->{config('translate.default')} . ' ' . $translate->$translate_lang) ) }}" data-value="{{ $translate->$translate_lang }}">
-                <td>{{ $translate->{config('translate.default')} }}</td>
+                <td style="width: 50px">
+                    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-{{ $translate->id_lang }}">
+                        <input onchange="verified($(this))" type="checkbox" id="switch-{{ $translate->id_lang }}" class="mdl-switch__input" {{ in_array($translate->id_lang, $verify) ? 'checked' : '' }}>
+                        <span class="mdl-switch__label"></span>
+                    </label>
+                </td>
+                <td style="width: 25%">{{ $translate->{config('translate.default')} }}</td>
                 <td>
                     <textarea class="mdl-textfield__input">{{ $translate->$translate_lang }}</textarea>
                 </td>
@@ -106,6 +128,15 @@
     </dialog>
 </div>
 <script>
+    function showing(This) {
+        if (This.val() == 1) {
+            return $('table tr').show();
+        }
+
+        $('table tr .mdl-switch__input:checked').each(function () {
+            $(this).parents('tr').hide();
+        });
+    }
     function removeAccents(varString) {
         if (varString == null) {
             return false;
@@ -186,6 +217,19 @@
         });
     }
 
+    function verified(This) {
+        $.ajax({
+            url: '/{{ config('translate.url_path') }}/manager/verified',
+            type: 'post',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id_lang: This.parents('tr').attr('data-id'),
+                language: '{{ $translate_lang }}',
+                check: This.prop('checked')
+            }
+        });
+    }
+
     $('.translate-body select').change(function () {
         window.location.href = '/{{ config('translate.url_path') }}/manager/' + $(this).val();
     });
@@ -242,6 +286,7 @@
                     _token: '{{ csrf_token() }}',
                     id_lang: $(this).attr('data-id'),
                     '{{ $translate_lang }}': $(this).find('textarea').val(),
+                    language: '{{ $translate_lang }}'
                 },
                 complete: function () {
 

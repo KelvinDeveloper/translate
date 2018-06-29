@@ -1,14 +1,14 @@
 <?php
 
 return [
-    'table'     =>  'translates',
+    'table'     =>  'translations',
     'debug'     =>  env('TRANSLATE_DEBUG', true),
     'default'   =>  'en',
     'cache_driver'     =>  'redis',
-    'translate_driver' => ['AWS'], // [AWS, Google]
+    'translate_driver' => ['Google', 'AWS'], // [AWS, Google]
     'url_path'  =>  'translate',
     'origin_path' => [
-//        'app/Http/Controllers/',
+        'app/Http/Controllers/',
         'resources/views/'
     ],
     /* Language Support (Google Translate) */
@@ -117,6 +117,5 @@ return [
         'Yiddish'               => 'yi',
         'Yoruba'                => 'yo',
         'Zulu'                  => 'zu',
-    ],
-    'except'    =>  false,
+    ]
 ];
