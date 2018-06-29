@@ -1,6 +1,14 @@
 {
   "name": "kelvinsouza/translate",
   "description": "Tradução automática para Laravel.",
+  "homepage": "https://github.com/KelvinDeveloper/translate",
+  "keywords": [
+    "translate",
+    "laravel translate",
+    "google translate",
+    "aws translate",
+    "auto translate"
+  ],
   "authors": [
     {
       "name": "Kelvin Souza",
@@ -13,5 +21,6 @@
     "aurawindsurfing/google-translate": "*",
     "predis/predis": "^1.1",
     "aws/aws-sdk-php-laravel": "~3.0"
-  }
+  },
+  "minimum-stability": "stable"
 }
