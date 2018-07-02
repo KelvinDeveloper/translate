@@ -2,6 +2,7 @@
   "name": "kelvinsouza/translate",
   "description": "Tradução automática para Laravel.",
   "homepage": "https://github.com/KelvinDeveloper/translate",
+  "version": "0.1",
   "keywords": [
     "translate",
     "laravel translate",
