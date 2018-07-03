@@ -37,6 +37,26 @@ class TranslateController extends Controller
         return $this->translate($request->Text, $this->default_language, $request->TargetLanguageCode);
     }
 
+    public function getLanguage ()
+    {
+        if ($this->hasCookie('locale')) return $this->getCookie('locale');
+
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+
+            $thisLocale = str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+
+            foreach (config('translate.languages') as $lang) {
+
+                if ($lang != config('translate.default') && strstr($thisLocale, $lang) == true) {
+
+                    return $this->setCookie('locale', $lang);
+                }
+            }
+        }
+
+        return $this->setCookie('locale', config('translate.default'), 2628000, '/');
+    }
+
     public function translate ($text, $sourceLanguageCode, $targetLanguageCode=false, $forceReturn=true)
     {
         if (! $sourceLanguageCode) $sourceLanguageCode = $this->default_language;
@@ -99,5 +119,27 @@ class TranslateController extends Controller
             if ($this->debug) var_dump($e->getMessage(), $e->getFile(), $e->getLine());
             return false;
         }
+    }
+
+    private function setCookie ($name, $value, $time = false, $path = '/', $domain = '', $secure = null, $httpOnly = false) {
+
+        if (! $time) {
+
+            $time = time() + 60 * 60 * 24 * 30;
+        }
+
+        setcookie($name, $value, $time, $path, $domain, $secure, $httpOnly);
+        return $_COOKIE[$name] = $value;
+    }
+
+    private function getCookie($name)
+    {
+        if ($this->hasCookie($name)) return $_COOKIE[$name];
+
+        return false;
+    }
+
+    private function hasCookie ($name) {
+        return isset($_COOKIE[$name]);
     }
 }
