@@ -55,7 +55,7 @@ class TranslateUpdate extends Command
 
             foreach ($file as $line) {
 
-                preg_match("/_t\(('|\")(.*)('|\")\)/", $line, $result);
+                preg_match("/_t\(('|\")(.*?)('|\")\)/", $line, $result);
 
                 if (! is_array($result)) continue;
                 if (empty($result[2])) continue;
