@@ -91,7 +91,7 @@ class TranslateController extends Controller
 
     public function variableTreatment ($text, $args)
     {
-        preg_match_all("/{{(.*?)}}/", $text, $result);
+        preg_match_all("/{(.*?)}/", $text, $result);
         return str_replace($result[0], $args, $text);
     }
 
