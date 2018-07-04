@@ -127,7 +127,7 @@ class TranslateController extends Controller
         }
     }
 
-    private function setCookie ($name, $value, $time = false, $path = '/', $domain = '', $secure = null, $httpOnly = false) {
+    public function setCookie ($name, $value, $time = false, $path = '/', $domain = '', $secure = null, $httpOnly = false) {
 
         if (! $time) {
 
@@ -138,14 +138,14 @@ class TranslateController extends Controller
         return $_COOKIE[$name] = $value;
     }
 
-    private function getCookie($name)
+    public function getCookie($name)
     {
         if ($this->hasCookie($name)) return $_COOKIE[$name];
 
         return false;
     }
 
-    private function hasCookie ($name) {
+    public function hasCookie ($name) {
         return isset($_COOKIE[$name]);
     }
 }
