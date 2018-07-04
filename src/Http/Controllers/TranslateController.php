@@ -59,6 +59,8 @@ class TranslateController extends Controller
 
     public function translate ($text, $sourceLanguageCode, $targetLanguageCode=false, $forceReturn=true)
     {
+        if ($sourceLanguageCode == config('translate.default')) return $text;
+
         if (! $sourceLanguageCode) $sourceLanguageCode = $this->default_language;
 
         if ($redis = $this->getTranslate($text, $targetLanguageCode))
@@ -74,7 +76,7 @@ class TranslateController extends Controller
             }
         }
 
-        return $forceReturn ? addslashes($text) : '';
+        return $forceReturn ? $text : '';
     }
 
     private function getTranslate ($text,  $targetLanguageCode)
