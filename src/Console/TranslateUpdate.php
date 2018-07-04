@@ -55,16 +55,19 @@ class TranslateUpdate extends Command
 
             foreach ($file as $line) {
 
-                preg_match("/_t\(('|\")(.*?)('|\")\)/", $line, $result);
+                preg_match_all("/_t\(('|\")(.*?)('|\")\)/", $line, $result);
 
                 if (! is_array($result)) continue;
-                if (empty($result[2])) continue;
+                if (! is_array($result[2])) continue;
 
-                $text = $result[2];
+                foreach ($result[2] as $text) {
 
-                if (! in_array($text, $this->allTexts)) {
+                    if (empty($text)) continue;
 
-                    $this->storeTexts[] = [config('translate.default') => $text];
+                    if (! in_array($text, $this->allTexts)) {
+
+                        $this->storeTexts[] = [config('translate.default') => $text];
+                    }
                 }
             }
         }

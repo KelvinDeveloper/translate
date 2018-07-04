@@ -87,6 +87,12 @@ class TranslateController extends Controller
         }
     }
 
+    public function variableTreatment ($text, $args)
+    {
+        preg_match_all("/{{(.*?)}}/", $text, $result);
+        return str_replace($result[0], $args, $text);
+    }
+
     private function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
     {
         if (! in_array($targetLanguageCode, config('translate.languages'))) abort(500, "Code {$targetLanguageCode} not supported");
