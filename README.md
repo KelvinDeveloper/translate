@@ -21,10 +21,15 @@ composer require kelvinsouza/translate
 
 ## Configuração
 
-Adicione o provider em seu arquivo config/app.php
+Adicione o provider e aliases em seu arquivo config/app.php
 ````
 ...
 Translate\Providers\TranslateProvider::class,
+
+
+...
+'Translate' => \Translate\Translate::class,
+
 ````
 
 Publique os arquivos de configuração:

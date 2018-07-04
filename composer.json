@@ -32,7 +32,10 @@
     "laravel": {
       "providers": [
         "Translate\\Providers\\TranslateProvider"
-      ]
+      ],
+      "aliases": {
+        "Translate": "Translate\\Facades\\TranslateFacade"
+      }
     }
   },
   "minimum-stability": "stable"

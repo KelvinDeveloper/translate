@@ -31,4 +31,9 @@ class Translate extends Model
 
         return (new TranslateController)->setCookie('locale', $lang, 2628000, '/');
     }
+
+    public static function getLocale()
+    {
+        return (new TranslateController)->getLanguage();
+    }
 }

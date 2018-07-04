@@ -134,8 +134,16 @@ class TranslateController extends Controller
             $time = time() + 60 * 60 * 24 * 30;
         }
 
+        $this->deleteCookie($name);
+
         setcookie($name, $value, $time, $path, $domain, $secure, $httpOnly);
         return $_COOKIE[$name] = $value;
+    }
+
+    public function deleteCookie($key, $path = '/')
+    {
+        unset($_COOKIE[$key]);
+        return setcookie($key, null, - 1, $path);
     }
 
     public function getCookie($name)
