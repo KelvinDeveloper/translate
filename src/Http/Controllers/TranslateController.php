@@ -54,7 +54,7 @@ class TranslateController extends Controller
             }
         }
 
-        return $this->setCookie('locale', config('translate.default'), 2628000, '/');
+        return $this->setCookie('locale', config('translate.default'));
     }
 
     public function translate ($text, $sourceLanguageCode, $targetLanguageCode=false, $forceReturn=true)

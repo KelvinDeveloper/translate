@@ -42,5 +42,7 @@ class TranslateProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/translate.php', 'translate');
         $this->mergeConfigFrom(__DIR__ . '/../config/google-translate.php', 'google-translate');
+        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+        $loader->alias('AWS', 'Aws\Laravel\AwsFacade');
     }
 }
