@@ -29,11 +29,11 @@ class TranslateSync extends Command
 
     public function handle()
     {
-        if (! in_array(config('translate.drive'), $this->drivers)) return abort(500, 'Driver not supported');
+        if (! in_array(config('translate.cache_driver'), $this->drivers)) return abort(500, 'Driver not supported');
 
         $default  = config('translate.default');
 
-        $driver = "Translate\Console\Drivers\Translate" . config('translate.drive');
+        $driver = "Translate\Console\Drivers\Translate" . ucfirst(config('translate.cache_driver'));
         $driver = new $driver;
 
         foreach (\Translate\Translate::get() as $item) {

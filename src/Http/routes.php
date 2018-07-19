@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['prefix' => config('translate.url_path')], function () {
+Route::group(['prefix' => config('translate.url_path', 'translate')], function () {
     Route::post('/', 'Translate\Http\Controllers\TranslateController@httpTranslate');
     Route::group(['prefix' => 'manager'], function () {
         Route::post('update', 'Translate\Http\Controllers\TranslateManager@update');
