@@ -7,12 +7,11 @@ use Translate\Http\Controllers\TranslateController;
 
 class Translate extends Model
 {
-    protected $table = null;
-    protected $fillable = null;
     protected $primaryKey = 'id_lang';
 
     public function __construct()
     {
+        $this->connection = env('DB_CONNECTION', 'mysql');
         $this->table = config('translate.table');
         $this->fillable = array_merge(config('translate.languages'));
     }

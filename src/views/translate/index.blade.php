@@ -4,33 +4,40 @@
     <title>Translate Manager</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <style>
-        li {
-            list-style: none;
-            margin: 0 10px;
+        .left {
+            float: left;
+            margin-right: 15px;
         }
-        .options {
-            padding: 10px;
-            text-align: right;
+        .right {
+            float: right;
+            margin-left: 15px;
         }
-        table {
-            width: 100%;
-            text-align: left;
+        .mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
+            padding: 10px !important;
         }
-        table tr {
-            height: 60px;
+        .mdl-layout__drawer>.mdl-layout__title, .mdl-layout__drawer>.mdl-layout-title {
+            line-height: 36px;
+            padding: 10px !important;
+            text-align: center;
+            margin-top: 10px;
+            border-bottom: solid 1px #dad8d8;
         }
-        table tr td {
-            vertical-align: top;
+        table.dataTable thead .no-sort.sorting_asc {
+            background-image: none !important;
+            cursor: default !important;
         }
         table select {
-            float: left;
-            height: 25px;
+            width: 100%;
         }
-        table tr:nth-child(even) {
-            background-color: #f2f2f2
+        select, input {
+            font-size: 14px;
+            height: 30px;
+            background-color: #fff;
         }
         table tr .material-icons {
             color: #8e908c;
@@ -39,101 +46,38 @@
         table tr:not(.pending) .material-icons {
             opacity: 0 !important;
         }
+        .options {
+            padding: 10px;
+            text-align: right;
+        }
+        .translate-table_wrapper {
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
-
-<div class="translate-body">
-
-    <header class="mdl-layout__header">
-        <div class="mdl-layout__header-row">
-            <span class="mdl-layout-title">Translate Manager</span>
-            <div class="mdl-layout-spacer"></div>
-            <nav class="mdl-navigation">
-                <li>
-                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-                        <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
-                            <i class="material-icons">search</i>
-                        </label>
-                        <div class="mdl-textfield__expandable-holder">
-                            <input class="mdl-textfield__input search" data-target="table" id="search" type="text">
-                            <label class="mdl-textfield__label" for="sample-expandable">Expandable Input</label>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored translate-save" disabled>Salvar</button>
-                </li>
-                <li>
-                    <button id="demo-menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon">
-                        <i class="material-icons">more_vert</i>
-                    </button>
-                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="demo-menu-lower-right">
-                        <li onclick="updateTexts()" class="mdl-menu__item">Atualizar termos</li>
-                        <li onclick="autoTranslate()" class="mdl-menu__item">Traduzir automaticamente</li>
-                        <li onclick="updateCache()" class="mdl-menu__item">Atualizar cache</li>
-                    </ul>
-                </li>
-            </nav>
+<!-- The drawer is always open in large screens. The header is always shown,
+  even in small screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+    {!! view('translate._partial.header') !!}
+    {!! view('translate._partial.menu') !!}
+    <main class="mdl-layout__content" style="padding-top: 15px">
+        <div class="page-content">
+            {!! view('translate._partial.table', compact('translate_lang', 'verify')) !!}
         </div>
-    </header>
-
-    <div class="options">
-        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2" style="margin-right: 5px;">
-            <input type="radio" id="option-2" class="mdl-radio__button" name="options" value="2" checked onchange="showing($(this))">
-            <span class="mdl-radio__label">Não revisados</span>
-        </label>
-
-        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
-            <input type="radio" id="option-1" class="mdl-radio__button" name="options" value="1" checked onchange="showing($(this))">
-            <span class="mdl-radio__label">Tudo</span>
-        </label>
-    </div>
-
-    <table class="mdl-data-table mdl-shadow--2dp">
-        <thead>
-        <th style="width: 50px">Revisado</th>
-        <th style="width: 25%">{{ array_search(config('translate.default'), config('translate.languages')) }}</th>
-        <th>
-            <select>
-                @foreach(config('translate.languages') as $lang => $code)
-                    <option value="{{ $code }}" {{ $code == $translate_lang ? 'selected' : '' }}>{{ $lang }}</option>
-                @endforeach
-            </select>
-        </th>
-        <th></th>
-        </thead>
-        <tbody>
-        @foreach(\Translate\Translate::orderBy('id_lang', 'ASC')->get(['id_lang', config('translate.default'), $translate_lang]) as $translate)
-            <tr data-id="{{ $translate->id_lang }}" data-search="{{ strtolower( removeAccents ($translate->{config('translate.default')} . ' ' . $translate->$translate_lang) ) }}" data-value="{{ $translate->$translate_lang }}">
-                <td style="width: 50px">
-                    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-{{ $translate->id_lang }}">
-                        <input onchange="verified($(this))" type="checkbox" id="switch-{{ $translate->id_lang }}" class="mdl-switch__input" {{ in_array($translate->id_lang, $verify) ? 'checked' : '' }}>
-                        <span class="mdl-switch__label"></span>
-                    </label>
-                </td>
-                <td style="width: 25%">{{ $translate->{config('translate.default')} }}</td>
-                <td>
-                    <textarea class="mdl-textfield__input">{{ $translate->$translate_lang }}</textarea>
-                </td>
-                <td>
-                    <i class="material-icons">save</i>
-                </td>
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
+    </main>
     <dialog class="mdl-dialog">
         <div class="mdl-dialog__content"></div>
     </dialog>
 </div>
+
 <script>
     function showing(This) {
         if (This.val() == 1) {
             return $('table tr').show();
         }
 
-        $('table tr .mdl-switch__input:checked').each(function () {
+        $('table tr [type="checkbox"]:checked').each(function () {
             $(this).parents('tr').hide();
         });
     }
@@ -233,19 +177,6 @@
     $('.translate-body select').change(function () {
         window.location.href = '/{{ config('translate.url_path') }}/manager/' + $(this).val();
     });
-    $('.translate-body textarea').keyup(function () {
-        if ($(this).val() != $(this).parents('tr').attr('data-value')) {
-            $(this).parents('tr').addClass('pending');
-        } else {
-            $(this).parents('tr').removeClass('pending');
-        }
-
-        if ($('tr.pending').length > 0) {
-            $('.translate-save:not(disabled)').removeAttr('disabled');
-        } else {
-            $('.translate-save:not(disabled)').attr('disabled', 'disabled');
-        }
-    });
     $(document).on('keyup', 'input.search', function (e) {
 
         var Query   = removeAccents($(this).val().toLowerCase()),
@@ -314,6 +245,56 @@
                     errors++;
                 }
             });
+        });
+    });
+    $(document).ready(function () {
+
+        $('#translate-table').DataTable({
+            columnDefs: [
+                { targets: 'no-sort', orderable: false }
+            ],
+            initComplete: function () {
+                $('#translate-table').show();
+            },
+            pageLength: 100,
+            language: {
+                "sEmptyTable": "Nenhum registro encontrado",
+                "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+                "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "_MENU_ resultados por página",
+                "sLoadingRecords": "Carregando...",
+                "sProcessing": "Processando...",
+                "sZeroRecords": "Nenhum registro encontrado",
+                "sSearch": "Pesquisar",
+                "oPaginate": {
+                    "sNext": "Próximo",
+                    "sPrevious": "Anterior",
+                    "sFirst": "Primeiro",
+                    "sLast": "Último"
+                },
+                "oAria": {
+                    "sSortAscending": ": Ordenar colunas de forma ascendente",
+                    "sSortDescending": ": Ordenar colunas de forma descendente"
+                }
+            }
+        });
+
+        $('#translate-table textarea').keyup(function () {
+            console.log('test')
+            if ($(this).val() != $(this).parents('tr').attr('data-value')) {
+                $(this).parents('tr').addClass('pending');
+            } else {
+                $(this).parents('tr').removeClass('pending');
+            }
+
+            if ($('tr.pending').length > 0) {
+                $('.translate-save:not(disabled)').removeAttr('disabled');
+            } else {
+                $('.translate-save:not(disabled)').attr('disabled', 'disabled');
+            }
         });
     });
 </script>

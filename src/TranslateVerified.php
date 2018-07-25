@@ -9,6 +9,11 @@ class TranslateVerified extends Model
     protected $table = 'translations_verified';
     protected $fillable = ['id_lang', 'language'];
 
+    public function __construct()
+    {
+        $this->connection = $this->connection = env('DB_CONNECTION', 'mysql');
+    }
+
     public function getData ($translate_lang)
     {
         $data = $this->where('language', $translate_lang)->get(['id_lang', 'language'])->implode('id_lang', ',');
