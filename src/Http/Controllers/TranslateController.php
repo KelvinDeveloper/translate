@@ -57,13 +57,13 @@ class TranslateController extends Controller
         return $this->setCookie('locale', config('translate.default'));
     }
 
-    public function translate ($text, $sourceLanguageCode, $targetLanguageCode=false, $forceReturn=true)
+    public function translate ($text, $targetLanguageCode, $sourceLanguageCode=false, $forceReturn=true, $getCache=true)
     {
-        if ($sourceLanguageCode == config('translate.default')) return $text;
+        if ($targetLanguageCode == config('translate.default')) return $text;
 
         if (! $sourceLanguageCode) $sourceLanguageCode = $this->default_language;
 
-        if ($redis = $this->getTranslate($text, $targetLanguageCode))
+        if ($getCache && $redis = $this->getTranslate($text, $targetLanguageCode))
             return $redis;
 
         foreach ($this->translate_driver as $driver) {

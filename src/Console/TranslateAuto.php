@@ -42,7 +42,7 @@ class TranslateAuto extends Command
                 if (! empty($item->{$languageDB})) continue;
                 if ($language == $default) continue;
 
-                $translate = (new TranslateController)->translate($defaultText, $default, $language, false);
+                $translate = (new TranslateController)->translate($defaultText, $language, $default, false, false);
                 $item->{$languageDB} = $translate;
             }
 

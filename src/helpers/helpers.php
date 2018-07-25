@@ -3,7 +3,7 @@
 if (! function_exists('_t')) {
     function _t($text, $args=false) {
         $Translate = new \Translate\Http\Controllers\TranslateController;
-        $text = $Translate->translate($text, null, $Translate->getLanguage());
+        $text = $Translate->translate($text, $Translate->getLanguage(), null);
 
         if (is_array($args)) $text = $Translate->variableTreatment($text, $args);
 

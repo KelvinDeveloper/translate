@@ -59,10 +59,10 @@ class TranslateManager extends Controller{
 
     private function createVerified ($id, $language)
     {
-        return TranslateVerified::create([
+        return (new TranslateVerified)->fill([
             'id_lang'  => $id,
             'language' => $language
-        ]);
+        ])->save();
     }
 
     public function autoTranslate (Request $request)
