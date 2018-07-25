@@ -55,9 +55,9 @@ Route::get('/translate/manager/{translate_lang?}', '\Translate\Http\Controllers\
 
 Caso queira validar o acesso antes, basta chamar o controller como exemplo abaixo:
 ````
-Route::get('/translate/manager/{translate_lang?}', function () {
+Route::get('/translate/manager/{translate_lang?}', function ($translate_lang) {
    if (! Auth::check()) return redirect('/auth/login');
-   return app('\Translate\Http\Controllers\TranslateManager')->index();
+   return app('\Translate\Http\Controllers\TranslateManager')->index($translate_lang);
 });
 ````
 
