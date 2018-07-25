@@ -174,9 +174,9 @@
         });
     }
 
-    $('.translate-body select').change(function () {
-        window.location.href = '/{{ config('translate.url_path') }}/manager/' + $(this).val();
-    });
+    function changeLanguage (This) {
+        window.location.href = '/{{ config('translate.url_path') }}/manager/' + This.val();
+    };
     $(document).on('keyup', 'input.search', function (e) {
 
         var Query   = removeAccents($(this).val().toLowerCase()),
