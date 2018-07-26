@@ -1,7 +1,7 @@
 Tradução Altomática para Laravel
 ====================
 
-A biblioteca utiliza [Google Translate API](https://cloud.google.com/translate/) e/ou [AWS Translate API](https://aws.amazon.com/translate/), para traduzir automaticamente os termos requisitados. A biblioteca contempla também um painel administrativo onde você pode alterar os termos traduzidos automaticamente.
+A biblioteca utiliza [Google Translate API](https://cloud.google.com/translate/) e/ou [AWS Translate API](https://aws.amazon.com/translate/), para traduzir automaticamente os termos requisitados e grava em cache (redis) para consultas. A biblioteca contempla também um painel administrativo onde você pode alterar os termos traduzidos automaticamente.
 
 ## Instalação
 
@@ -53,6 +53,23 @@ Você pode adicionar a rota publica (quando não haverá autenticação ou valid
 Route::get('/translate/manager/{translate_lang?}', '\Translate\Http\Controllers\TranslateManager@index');
 ````
 
+Você também pode utilizar os comandos do artisan para buscar novos termos no código, traduzir termos automaticamente ou atualizar o cache. 
+
+Busca novos termos:
+````
+php artisan translate:update
+````
+
+Traduz termos ainda não traduzidos automaticamente:
+````
+php artisan translate:auto {lang}
+````
+
+Atualiza o cache:
+````
+php artisan translate:sync
+````
+
 Caso queira validar o acesso antes, basta chamar o controller como exemplo abaixo:
 ````
 Route::get('/translate/manager/{translate_lang?}', function ($translate_lang=null) {
@@ -73,6 +90,18 @@ Você pode utilizar variáveis nas traduções
 _t('Olá {nome_usuario}', [$nome_usuario]);
 ````
 
-### License
+Para traduzir arquivos .js, você deverá adicionar a seguinte linha no &lt;head&gt; da página:
+````
+<script src="/translate/js/{{ Translate::getLocale() }}"></script>
+````
+E também o seguinte código em um arquivo .js ou entre tags &lt;script&gt; dentro do &lt;head&gt; da página:
+````
+function _t(key) {
+    if (typeof Lang != 'object' || typeof Lang[key] != 'string') return key;
+    return Lang[key];
+}
+````
+Obs.: As chamadas da função _t() em arquivos .js ainda não traduzem os termos automaticamente. Neste caso você terá que localizar e traduzir os termos utilizando o Translate Manager, ou os comandos no artisan.
 
+### License
 This repository code is open-sourced software licensed under the MIT license

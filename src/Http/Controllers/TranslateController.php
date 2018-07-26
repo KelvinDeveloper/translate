@@ -5,6 +5,7 @@ namespace Translate\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Dedicated\GoogleTranslate\Translator;
 use Illuminate\Http\Request;
+use Translate\Translate;
 
 class TranslateController extends Controller
 {
@@ -93,6 +94,15 @@ class TranslateController extends Controller
     {
         preg_match_all("/{(.*?)}/", $text, $result);
         return str_replace($result[0], $args, $text);
+    }
+
+    public function getJavascript ($lang)
+    {
+        $json = [];
+        foreach (\Translate::get([$this->default_language, $lang])->toArray() as $row) {
+            $json[$row[$this->default_language]] = $row[$lang];
+        }
+        return 'var Lang = ' . json_encode($json);
     }
 
     private function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
