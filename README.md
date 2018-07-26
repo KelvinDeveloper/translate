@@ -53,6 +53,14 @@ Você pode adicionar a rota publica (quando não haverá autenticação ou valid
 Route::get('/translate/manager/{translate_lang?}', '\Translate\Http\Controllers\TranslateManager@index');
 ````
 
+Caso queira validar o acesso antes, basta chamar o controller como exemplo abaixo:
+````
+Route::get('/translate/manager/{translate_lang?}', function ($translate_lang=null) {
+   if (! Auth::check()) return redirect('/auth/login');
+   return app('\Translate\Http\Controllers\TranslateManager')->index($translate_lang);
+});
+````
+
 Você também pode utilizar os comandos do artisan para buscar novos termos no código, traduzir termos automaticamente ou atualizar o cache. 
 
 Busca novos termos:
@@ -68,14 +76,6 @@ php artisan translate:auto {lang}
 Atualiza o cache:
 ````
 php artisan translate:sync
-````
-
-Caso queira validar o acesso antes, basta chamar o controller como exemplo abaixo:
-````
-Route::get('/translate/manager/{translate_lang?}', function ($translate_lang=null) {
-   if (! Auth::check()) return redirect('/auth/login');
-   return app('\Translate\Http\Controllers\TranslateManager')->index($translate_lang);
-});
 ````
 
 ## Uso
