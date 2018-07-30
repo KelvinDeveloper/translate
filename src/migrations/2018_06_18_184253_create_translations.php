@@ -19,7 +19,7 @@ class CreateTranslations extends Migration
             $table->engine = 'MyISAM';
 
             $table->increments('id_lang');
-            $table->text($default);
+            $table->text($default)->unique();
             foreach (config('translate.languages') as $language) {
 
                 $language = str_replace('-', '_', strtolower($language));
