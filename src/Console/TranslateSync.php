@@ -29,7 +29,7 @@ class TranslateSync extends Command
 
     public function handle()
     {
-        if (! in_array(config('translate.cache_driver'), $this->drivers)) return abort(500, 'Driver not supported');
+        if (! in_array(strtolower(config('translate.cache_driver')), $this->drivers)) return abort(500, 'Driver not supported');
 
         $default  = config('translate.default');
 

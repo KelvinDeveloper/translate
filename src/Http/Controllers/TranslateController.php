@@ -20,7 +20,7 @@ class TranslateController extends Controller
     {
         $this->default_language = config('translate.default', 'en');
         $this->debug = config('translate.debug', false);
-        $cache_driver = "Translate\Console\Drivers\Translate" . config('translate.cache_driver');
+        $cache_driver = "Translate\Console\Drivers\Translate" . ucfirst(config('translate.cache_driver'));
         $this->cache_driver     = new $cache_driver;
         $this->translate_driver = config('translate.translate_driver');
     }

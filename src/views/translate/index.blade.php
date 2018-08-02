@@ -282,8 +282,8 @@
             }
         });
 
-        $('#translate-table textarea').keyup(function () {
-            console.log('test')
+        $(document).off('keyup', '#translate-table textarea');
+        $(document).on('keyup', '#translate-table textarea', function () {
             if ($(this).val() != $(this).parents('tr').attr('data-value')) {
                 $(this).parents('tr').addClass('pending');
             } else {
