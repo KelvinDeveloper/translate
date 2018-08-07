@@ -41,6 +41,7 @@ class TranslateUpdate extends Command
         }
 
         $translate = new Translate;
+
         return $translate->insert($this->storeTexts);
     }
 
@@ -67,6 +68,7 @@ class TranslateUpdate extends Command
                     if (! in_array($text, $this->allTexts)) {
 
                         $this->storeTexts[] = [config('translate.default') => $text];
+                        $this->allTexts[] = $text;
                     }
                 }
             }

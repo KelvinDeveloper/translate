@@ -5,6 +5,9 @@ namespace Translate\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Translate\Console\TranslateAuto;
+use Translate\Console\TranslateSync;
+use Translate\Console\TranslateUpdate;
 use Translate\Translate;
 use Translate\TranslateVerified;
 
@@ -67,18 +70,19 @@ class TranslateManager extends Controller{
 
     public function autoTranslate (Request $request)
     {
-        return Artisan::call('translate:auto', [
-            'language'  =>  $request->language
-        ]);
+        (new TranslateAuto())->handle($request->language);
+        return ['status' => true];
     }
 
     public function updateTexts ()
     {
-        return Artisan::call('translate:update');
+        (new TranslateUpdate())->handle();
+        return ['status' => true];
     }
 
     public function updateCache ()
     {
-        return Artisan::call('translate:sync');
+        (new TranslateSync())->handle();
+        return ['status' => true];
     }
 }

@@ -26,10 +26,14 @@ class TranslateAuto extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle($lang=false)
     {
         $default   = config('translate.default');
-        $languages = $this->argument('language') ? [$this->argument('language')] : config('translate.languages');
+        if (! $lang) {
+            $languages = $this->argument('language') ? [$this->argument('language')] : config('translate.languages');
+        } else {
+            $languages = [$lang];
+        }
 
         foreach (\Translate\Translate::get() as $item) {
 
