@@ -1,9 +1,9 @@
 <?php
 
 if (! function_exists('_t')) {
-    function _t($text, $args=false) {
+    function _t($text, $args=null, $language=null) {
         $Translate = new \Translate\Http\Controllers\TranslateController;
-        $text = $Translate->translate($text, $Translate->getLanguage(), null);
+        $text = $Translate->translate($text, $language ? $language : $Translate->getLanguage(), null);
 
         if (is_array($args)) $text = $Translate->variableTreatment($text, $args);
 
