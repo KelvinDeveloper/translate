@@ -60,9 +60,8 @@ class TranslateController extends Controller
 
     public function translate ($text, $targetLanguageCode, $sourceLanguageCode=false, $forceReturn=true, $getCache=true)
     {
-        if ($targetLanguageCode == config('translate.default')) return $text;
-
         if (! $sourceLanguageCode) $sourceLanguageCode = $this->default_language;
+        if ($targetLanguageCode == $sourceLanguageCode) return $text;
 
         if ($getCache && $redis = $this->getTranslate($text, $targetLanguageCode))
             return $redis;
