@@ -153,18 +153,23 @@ class TranslateController extends Controller
 
     public function deleteCookie($key, $path = '/')
     {
-        unset($_COOKIE[$key]);
-        return setcookie($key, null, - 1, $path);
+        try {
+            unset($_COOKIE[$key]);
+            return setcookie($key, null, - 1, $path);
+        } catch (\Exception $e) { return $key; }
     }
 
     public function getCookie($name)
     {
-        if ($this->hasCookie($name)) return $_COOKIE[$name];
-
-        return false;
+        try {
+            if ($this->hasCookie($name)) return $_COOKIE[$name];
+            return false;
+        } catch (\Exception $e) { return $name; }
     }
 
     public function hasCookie ($name) {
-        return isset($_COOKIE[$name]);
+        try {
+            return isset($_COOKIE[$name]);
+        } catch (\Exception $e) { return $name; }
     }
 }
