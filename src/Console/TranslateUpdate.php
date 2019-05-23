@@ -31,8 +31,10 @@ class TranslateUpdate extends Command
 
     public function handle()
     {
-        $this->allTexts = Translate::get([config('translate.default')])->implode(config('translate.default'), ',');
-        $this->allTexts = explode(',', $this->allTexts);
+        $items = Translate::get([config('translate.default')])->toArray();
+        $collection = collect($items);
+
+        $this->allTexts = $collection->pluck(config('translate.default'))->toArray();
 
         foreach (config('translate.origin_path') as $path) {
 
@@ -50,7 +52,7 @@ class TranslateUpdate extends Command
         foreach (scandir($path) as $file) {
 
             if (in_array($file, ['.', '..'])) continue;
-            if (is_dir($path . $file)) $this->searchTexts($path . $file);
+            if (is_dir($path . $file)) $this->searchTexts($path . '/' . $file);
 
             $file = file($this->treatmentPath($path) . $file);
 
@@ -64,7 +66,6 @@ class TranslateUpdate extends Command
                 foreach ($result[2] as $text) {
 
                     if (empty($text)) continue;
-
                     if (! in_array($text, $this->allTexts)) {
 
                         $this->storeTexts[] = [config('translate.default') => $text];
