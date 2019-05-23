@@ -101,7 +101,7 @@ class TranslateController extends Controller
         foreach (\Translate::get([$this->default_language, $lang])->toArray() as $row) {
             $json[$row[$this->default_language]] = $row[$lang];
         }
-        return 'var Lang = ' . json_encode($json);
+        return response('var Lang = ' . json_encode($json))->header('Content-Type', 'application/javascript');
     }
 
     private function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
