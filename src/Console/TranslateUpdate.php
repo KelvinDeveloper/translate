@@ -49,12 +49,14 @@ class TranslateUpdate extends Command
 
     private function searchTexts($path)
     {
+        $path = rtrim($path, '/');
+
         foreach (scandir($path) as $file) {
 
             if (in_array($file, ['.', '..'])) continue;
-            if (is_dir($path . $file)) $this->searchTexts($path . '/' . $file);
+            if (is_dir($path . '/' . $file)) $this->searchTexts($path . '/' . $file);
 
-            $file = file($this->treatmentPath($path) . $file);
+            $file = file($this->treatmentPath($path) . '/' . $file);
 
             foreach ($file as $line) {
 
