@@ -140,6 +140,17 @@ class TranslateController extends Controller
 
     public function setCookie ($name, $value, $time = false, $path = '/', $domain = '', $secure = null, $httpOnly = false) {
 
+        if (is_null($secure) && env('SESSION_SECURE_COOKIE')) {
+            $secure = env('SESSION_SECURE_COOKIE');
+        }
+
+        if (is_null($httpOnly) && env('SESSION_HTTP_ONLY_COOKIE')) {
+            $httpOnly = env('SESSION_HTTP_ONLY_COOKIE');
+        }
+        else if (is_null($httpOnly)) {
+            $httpOnly = false;
+        }
+
         if (! $time) {
 
             $time = time() + 60 * 60 * 24 * 30;
