@@ -1,4 +1,4 @@
-Tradução Altomática para Laravel
+Tradução Automática para Laravel
 ====================
 
 A biblioteca utiliza [Google Translate API](https://cloud.google.com/translate/) e/ou [AWS Translate API](https://aws.amazon.com/translate/), para traduzir automaticamente os termos requisitados e grava em cache (redis) para consultas. A biblioteca contempla também um painel administrativo onde você pode alterar os termos traduzidos automaticamente.
