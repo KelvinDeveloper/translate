@@ -95,13 +95,29 @@ class TranslateController extends Controller
         return str_replace($result[0], $args, $text);
     }
 
-    public function getJavascript ($lang)
+    public function getJavascript($lang)
     {
-        $json = [];
-        foreach (\Translate::get([$this->default_language, $lang])->toArray() as $row) {
-            $json[$row[$this->default_language]] = $row[$lang];
+        $updated_at = \Translate::orderBy('updated_at', 'DESC')->first(['updated_at'])->updated_at;
+        if ($this->cache_driver->get('translate.javascript.'.$lang.'.updated_at') < $updated_at) {
+            $json = [];
+            foreach (\Translate::get([$this->default_language, $lang]) as $row) {
+                if ($row->{$this->default_language} != $row->$lang )
+                    $json[$row->{$this->default_language}] = $row->$lang;
+            }
+            $file = 'var Lang = '.json_encode($json);
+            $this->cache_driver->store('translate.javascript.'.$lang.'.updated_at', $updated_at);
+            $this->cache_driver->store('translate.javascript.'.$lang.'.file', $file);
+        } else {
+            $file = $this->cache_driver->get('translate.javascript.'.$lang.'.file');
         }
-        return response('var Lang = ' . json_encode($json))->header('Content-Type', 'application/javascript');
+
+        $response = response($file)->header('Last-Modified', $updated_at->toRfc822String() )->header('Content-Type', 'application/javascript');
+        if ( request()->headers->has('If-Modified-Since') ) {
+            return $response;
+        }
+        return $response
+            ->header('Cache-Control', 'max-age='.(60 * 60 * 24 * 5))
+            ->header('Expires', gmdate('D, d M Y H:i:s \G\M\T', strtotime('+5 days') ));
     }
 
     private function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
