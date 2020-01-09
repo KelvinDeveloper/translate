@@ -13,4 +13,10 @@ class TranslateRedis
     {
         return \Redis::get($key);
     }
+    
+
+    public function has($key)
+    {
+        return \Redis::exists($key);
+    }
 }
