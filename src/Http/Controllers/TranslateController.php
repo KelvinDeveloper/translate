@@ -11,14 +11,19 @@ class TranslateController extends Controller
 {
     use TranslateStore;
 
-    private $default_language = '';
+    static $default_language = '';
     private $debug            = null;
     private $cache_driver     = null;
     private $translate_driver = null;
 
+
+    static $lang = [];
+    static $lastdate = null;
+
+
     public function __construct()
     {
-        $this->default_language = config('translate.default', 'en');
+        self::$default_language = config('translate.default', 'en');
         $this->debug = config('translate.debug', false);
         $cache_driver = "Translate\Console\Drivers\Translate" . ucfirst(config('translate.cache_driver'));
         $this->cache_driver     = new $cache_driver;
@@ -33,14 +38,57 @@ class TranslateController extends Controller
         ]);
 
         if ($request->SourceLanguageCode)
-            $this->default_language = $request->SourceLanguageCode;
+            self::$default_language = $request->SourceLanguageCode;
 
-        return $this->translate($request->Text, $this->default_language, $request->TargetLanguageCode);
+        return $this->translate($request->Text, self::$default_language, $request->TargetLanguageCode);
     }
 
-    public function getLanguage ()
+
+    public static function cacheLangs($target) {
+        if (self::$lastdate === null) {
+            self::$lastdate = \Translate::orderBy('updated_at', 'DESC')
+                ->first(['updated_at'])->updated_at->format('U');
+        }
+
+        $file = storage_path('app/'.$target.'.php');
+        if (!isset(self::$lang[$target]) && (!file_exists($file) || filemtime($file) < self::$lastdate)) {
+            $default = self::$default_language;
+            $langs = \Translate::groupBy($default)->get([$default, $target]);
+
+            $php = '<?php \Translate\Http\Controllers\TranslateController::$lang[\''.$target.'\'] = [';
+            self::$lang[$target] = [];
+            foreach($langs as $row) {
+                self::$lang[$target][$row->$default] = $row->$target;
+
+                $php .= "'".addslashes($row->$default)."' => '".addslashes($row->$target)."',";
+            }
+
+            $php .= ']; ';
+
+            file_put_contents($file, $php);
+        } else if (!isset(self::$lang[$target])) {
+            require($file);
+        }
+
+    }
+
+    public static function translateFromCache($text, $args = null, $target = null) {
+        if ($target === null)
+            $target = self::getLanguage();
+
+        self::cacheLangs($target);
+
+        $text = isset(self::$lang[$target][$text]) ? self::$lang[$target][$text] : null;
+
+        if (is_array($args)) {
+            return self::variableTreatment($text, $args);
+        }
+        return $text;
+    }
+
+    public static function getLanguage()
     {
-        if ($this->hasCookie('locale')) return $this->getCookie('locale');
+        if (self::hasCookie('locale')) return self::getCookie('locale');
 
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 
@@ -50,17 +98,17 @@ class TranslateController extends Controller
 
                 if ($lang != config('translate.default') && strstr($thisLocale, $lang) == true) {
 
-                    return $this->setCookie('locale', $lang);
+                    return self::setCookie('locale', $lang);
                 }
             }
         }
 
-        return $this->setCookie('locale', config('translate.default'));
+        return self::setCookie('locale', config('translate.default'));
     }
 
     public function translate ($text, $targetLanguageCode, $sourceLanguageCode=false, $forceReturn=true, $getCache=true)
     {
-        if (! $sourceLanguageCode) $sourceLanguageCode = $this->default_language;
+        if (! $sourceLanguageCode) $sourceLanguageCode =self::$default_language;
         if ($targetLanguageCode == $sourceLanguageCode) return $text;
 
         if ($getCache && $redis = $this->getTranslate($text, $targetLanguageCode))
@@ -89,35 +137,19 @@ class TranslateController extends Controller
         }
     }
 
-    public function variableTreatment ($text, $args)
+    public static function variableTreatment ($text, $args)
     {
         preg_match_all("/{(.*?)}/", $text, $result);
         return str_replace($result[0], $args, $text);
     }
 
-    public function getJavascript($lang)
+    public function getJavascript ($lang)
     {
-        $updated_at = \Translate::orderBy('updated_at', 'DESC')->first(['updated_at'])->updated_at;
-        if ($this->cache_driver->get('translate.javascript.'.$lang.'.updated_at') < $updated_at) {
-            $json = [];
-            foreach (\Translate::get([$this->default_language, $lang]) as $row) {
-                if ($row->{$this->default_language} != $row->$lang )
-                    $json[$row->{$this->default_language}] = $row->$lang;
-            }
-            $file = 'var Lang = '.json_encode($json);
-            $this->cache_driver->store('translate.javascript.'.$lang.'.updated_at', $updated_at);
-            $this->cache_driver->store('translate.javascript.'.$lang.'.file', $file);
-        } else {
-            $file = $this->cache_driver->get('translate.javascript.'.$lang.'.file');
+        $json = [];
+        foreach (\Translate::groupBy(self::$default_language)->get([self::$default_language, $lang])->toArray() as $row) {
+            $json[$row[self::$default_language]] = $row[$lang];
         }
-
-        $response = response($file)->header('Last-Modified', $updated_at->toRfc822String() )->header('Content-Type', 'application/javascript');
-        if ( request()->headers->has('If-Modified-Since') ) {
-            return $response;
-        }
-        return $response
-            ->header('Cache-Control', 'max-age='.(60 * 60 * 24 * 5))
-            ->header('Expires', gmdate('D, d M Y H:i:s \G\M\T', strtotime('+5 days') ));
+        return response('var Lang = ' . json_encode($json))->header('Content-Type', 'application/javascript');
     }
 
     private function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
@@ -154,8 +186,7 @@ class TranslateController extends Controller
         }
     }
 
-    public function setCookie ($name, $value, $time = false, $path = '/', $domain = '', $secure = null, $httpOnly = null) {
-
+    public static function setCookie ($name, $value, $time = false, $path = '/', $domain = '', $secure = null, $httpOnly = null) {
         if (is_null($secure) && env('SESSION_SECURE_COOKIE')) {
             $secure = env('SESSION_SECURE_COOKIE');
         }
@@ -172,13 +203,13 @@ class TranslateController extends Controller
             $time = time() + 60 * 60 * 24 * 30;
         }
 
-        $this->deleteCookie($name);
+        self::deleteCookie($name);
 
         setcookie($name, $value, $time, $path, $domain, $secure, $httpOnly);
         return $_COOKIE[$name] = $value;
     }
 
-    public function deleteCookie($key, $path = '/')
+    public static function deleteCookie($key, $path = '/')
     {
         try {
             unset($_COOKIE[$key]);
@@ -186,15 +217,15 @@ class TranslateController extends Controller
         } catch (\Exception $e) { return $key; }
     }
 
-    public function getCookie($name)
+    public static function getCookie($name)
     {
         try {
-            if ($this->hasCookie($name)) return $_COOKIE[$name];
+            if (self::hasCookie($name)) return $_COOKIE[$name];
             return false;
         } catch (\Exception $e) { return $name; }
     }
 
-    public function hasCookie ($name) {
+    public static function hasCookie ($name) {
         try {
             return isset($_COOKIE[$name]);
         } catch (\Exception $e) { return $name; }
