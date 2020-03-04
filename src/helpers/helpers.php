@@ -2,12 +2,7 @@
 
 if (! function_exists('_t')) {
     function _t($text, $args=null, $target=null, $source=null) {
-        $Translate = new \Translate\Http\Controllers\TranslateController;
-        $text = $Translate->translate($text, $target ? $target : $Translate->getLanguage(), $source);
-
-        if (is_array($args)) $text = $Translate->variableTreatment($text, $args);
-
-        return $text;
+        return \Translate\Http\Controllers\TranslateController::translateFromCache($text, $args, $target);
     }
 }
 
