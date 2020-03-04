@@ -53,7 +53,9 @@ class TranslateController extends Controller
         $file = storage_path('app/'.$target.'.php');
         if (!isset(self::$lang[$target]) && (!file_exists($file) || filemtime($file) < self::$lastdate)) {
             $default = self::$default_language;
-            $langs = \Translate::groupBy($default)->get([$default, $target]);
+            $langs = \Translate::groupBy($default)
+                ->where($target,'!=','')
+                ->get([$default, $target]);
 
             $php = '<?php \Translate\Http\Controllers\TranslateController::$lang[\''.$target.'\'] = [';
             self::$lang[$target] = [];
@@ -78,7 +80,7 @@ class TranslateController extends Controller
 
         self::cacheLangs($target);
 
-        $text = isset(self::$lang[$target][$text]) ? self::$lang[$target][$text] : null;
+        $text = isset(self::$lang[$target][$text]) ? self::$lang[$target][$text] : $text;
 
         if (is_array($args)) {
             return self::variableTreatment($text, $args);
