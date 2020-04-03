@@ -54,27 +54,29 @@ class TranslateUpdate extends Command
         foreach (scandir($path) as $file) {
 
             if (in_array($file, ['.', '..'])) continue;
-            if (is_dir($path . '/' . $file)) $this->searchTexts($path . '/' . $file);
+            if (is_dir($path . '/' . $file)) {
+                $this->searchTexts($path . '/' . $file);
+            } else {
+                foreach ($file as $line) {
 
-            $file = file($this->treatmentPath($path) . '/' . $file);
+                    preg_match_all("/_t\(('|\")(.*?)('|\")\)/", $line, $result);
 
-            foreach ($file as $line) {
+                    if (! is_array($result)) continue;
+                    if (! is_array($result[2])) continue;
 
-                preg_match_all("/_t\(('|\")(.*?)('|\")\)/", $line, $result);
+                    foreach ($result[2] as $text) {
 
-                if (! is_array($result)) continue;
-                if (! is_array($result[2])) continue;
+                        if (empty($text)) continue;
+                        if (! in_array($text, $this->allTexts)) {
 
-                foreach ($result[2] as $text) {
-
-                    if (empty($text)) continue;
-                    if (! in_array($text, $this->allTexts)) {
-
-                        $this->storeTexts[] = [config('translate.default') => $text];
-                        $this->allTexts[] = $text;
+                            $this->storeTexts[] = [config('translate.default') => $text];
+                            $this->allTexts[] = $text;
+                        }
                     }
                 }
             }
+
+            $file = file($this->treatmentPath($path) . '/' . $file);
         }
     }
 
