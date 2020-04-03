@@ -57,6 +57,8 @@ class TranslateUpdate extends Command
             if (is_dir($path . '/' . $file)) {
                 $this->searchTexts($path . '/' . $file);
             } else {
+                $file = file($this->treatmentPath($path) . '/' . $file);
+
                 foreach ($file as $line) {
 
                     preg_match_all("/_t\(('|\")(.*?)('|\")\)/", $line, $result);
@@ -75,8 +77,6 @@ class TranslateUpdate extends Command
                     }
                 }
             }
-
-            $file = file($this->treatmentPath($path) . '/' . $file);
         }
     }
 
