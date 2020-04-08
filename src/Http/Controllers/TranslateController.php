@@ -207,7 +207,7 @@ class TranslateController extends Controller
 
         self::deleteCookie($name);
 
-        setcookie($name, $value, $time, $path, $domain, $secure, $httpOnly);
+        @setcookie($name, $value, $time, $path, $domain, $secure, $httpOnly);
         return $_COOKIE[$name] = $value;
     }
 
