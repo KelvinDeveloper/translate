@@ -31,48 +31,53 @@ class TranslateUpdate extends Command
 
     public function handle()
     {
-        $items = Translate::get([config('translate.default')])->toArray();
-        $collection = collect($items);
+        $default = config('translate.default');
+        $items = Translate::get([$default]);
 
-        $this->allTexts = $collection->pluck(config('translate.default'))->toArray();
+        $this->allTexts = [];
+        foreach($items as $row) {
+            $this->allTexts[$row->$default] = true;
+        }
 
         foreach (config('translate.origin_path') as $path) {
-
             $path = base_path($this->treatmentPath($path));
             $this->searchTexts($path);
         }
 
         $translate = new Translate;
 
+        dc('Found '.count($this->storeTexts).' new texts');
         return $translate->insert($this->storeTexts);
     }
 
     private function searchTexts($path)
     {
         $path = rtrim($path, '/');
+        $default = config('translate.default');
 
         foreach (scandir($path) as $file) {
-
-            if (in_array($file, ['.', '..'])) continue;
+            if (in_array($file, ['.', '..']))
+                continue;
             if (is_dir($path . '/' . $file)) {
                 $this->searchTexts($path . '/' . $file);
             } else {
-                $file = file($this->treatmentPath($path) . '/' . $file);
+                dc($path.'/'.$file);
+                $lines = file($this->treatmentPath($path) . '/' . $file);
+                foreach ($lines as $line) {
+                    preg_match_all("/_t(\s+)?\((\s+)?('|\")(.*?)('|\")((\s+)?,(\s+)?(.*?))?(\s+)?\)/",
+                        $line, $result);
 
-                foreach ($file as $line) {
-
-                    preg_match_all("/_t\(('|\")(.*?)('|\")\)/", $line, $result);
 
                     if (! is_array($result)) continue;
-                    if (! is_array($result[2])) continue;
+                    if (! is_array($result[4])) continue;
 
-                    foreach ($result[2] as $text) {
+                    foreach ($result[4] as $text) {
+                        if (empty($text))
+                            continue;
 
-                        if (empty($text)) continue;
-                        if (! in_array($text, $this->allTexts)) {
-
-                            $this->storeTexts[] = [config('translate.default') => $text];
-                            $this->allTexts[] = $text;
+                        if (!isset($this->allTexts[$text])) {
+                            $this->storeTexts[] = [$default => $text, 'created_at' => date('Y-m-d H:i:s')];
+                            $this->allTexts[$text] = true;
                         }
                     }
                 }
