@@ -50,11 +50,15 @@ class TranslateController extends Controller
                 ->first(['updated_at'])->updated_at->format('U');
         }
 
+        // sem cache para o idioma padrao
+        if (self::$default_language === $target)
+            return;
+
         $file = storage_path('app/'.$target.'.php');
         if (!isset(self::$lang[$target]) && (!file_exists($file) || filemtime($file) < self::$lastdate)) {
             $default = self::$default_language;
-            $langs = \Translate::groupBy($default)
-                ->where($target,'!=','')
+            $langs = \DB::table('translations')->where($target,'!=','')
+                ->orderBy('updated_at')
                 ->get([$default, $target]);
 
             $php = '<?php \Translate\Http\Controllers\TranslateController::$lang[\''.$target.'\'] = [';
@@ -77,11 +81,12 @@ class TranslateController extends Controller
     public static function translateFromCache($text, $args = null, $target = null) {
         if ($target === null)
             $target = self::getLanguage();
-
-        self::cacheLangs($target);
-
-        $text = isset(self::$lang[$target][$text]) ? self::$lang[$target][$text] : $text;
-
+        
+        if (self::$default_language !== $target) {
+            self::cacheLangs($target);
+            $text = isset(self::$lang[$target][$text]) ? self::$lang[$target][$text] : $text;
+        }
+        
         if (is_array($args)) {
             return self::variableTreatment($text, $args);
         }
@@ -90,16 +95,13 @@ class TranslateController extends Controller
 
     public static function getLanguage()
     {
-        if (self::hasCookie('locale')) return self::getCookie('locale');
-
+        if (self::hasCookie('locale')) 
+            return self::getCookie('locale');
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-
             $thisLocale = str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
             foreach (config('translate.languages') as $lang) {
-
                 if ($lang != config('translate.default') && strstr($thisLocale, $lang) == true) {
-
                     return self::setCookie('locale', $lang);
                 }
             }
