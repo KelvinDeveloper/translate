@@ -57,7 +57,10 @@ class TranslateController extends Controller
         $file = storage_path('app/'.$target.'.php');
         if (!isset(self::$lang[$target]) && (!file_exists($file) || filemtime($file) < self::$lastdate)) {
             $default = self::$default_language;
-            $langs = \DB::table('translations')->where($target,'!=','')
+            $instance = new Translate;
+            $langs = \DB::connection($instance->getConnection()->getName())
+                ->table($instance->getTable())
+                ->where($target,'!=','')
                 ->orderBy('updated_at')
                 ->get([$default, $target]);
 
