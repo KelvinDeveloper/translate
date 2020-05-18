@@ -6,11 +6,6 @@ if (! function_exists('_t')) {
     }
 }
 
-if (! function_exists('setLanguage')) {
-    function setLanguage($lang) {
-        return \Translate\Http\Controllers\TranslateController::setLanguage($lang);
-    }
-}
 
 if (! function_exists('removeAccents')) {
     function removeAccents($string)
