@@ -28,7 +28,7 @@ class Translate extends Model
 
         if (!in_array($lang, config('translate.languages'))) return abort(500, 'Code Language not supported.');
 
-        return TranslateController::setCookie('locale', $lang);
+        return TranslateController::setLanguage( $lang);
     }
 
     public static function getLocale()
