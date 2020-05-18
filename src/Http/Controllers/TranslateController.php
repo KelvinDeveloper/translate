@@ -96,21 +96,39 @@ class TranslateController extends Controller
         return $text;
     }
 
+    public static function setLanguage($lang)
+    {
+        if (!in_array($lang, config('translate.principal_languages'))) {
+            $lang = config('translate.default');
+        }
+
+        return self::setCookie('locale', $lang);
+    }
+
     public static function getLanguage()
     {
-        if (self::hasCookie('locale')) 
-            return self::getCookie('locale');
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        $lang = '';
+        if (self::hasCookie('locale'))
+            $lang = self::getCookie('locale');
+        else if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $thisLocale = str_replace('-', '_', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
             foreach (config('translate.languages') as $lang) {
                 if ($lang != config('translate.default') && strstr($thisLocale, $lang) == true) {
-                    return self::setCookie('locale', $lang);
+                    $lang = self::setCookie('locale', $lang);
+                    break;
                 }
             }
+        } else {
+            $lang = config('translate.default');
         }
 
-        return self::setCookie('locale', config('translate.default'));
+        if (!in_array($lang, config('translate.principal_languages'))) {
+            $lang = config('translate.default');
+            self::setLanguage($lang);
+        }
+
+        return $lang;
     }
 
     public function translate ($text, $targetLanguageCode, $sourceLanguageCode=false, $forceReturn=true, $getCache=true)
