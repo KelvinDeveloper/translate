@@ -46,7 +46,7 @@ class TranslateController extends Controller
 
     public static function cacheLangs($target) {
         if (self::$lastdate === null) {
-            self::$lastdate = \Translate::orderBy('updated_at', 'DESC')
+            self::$lastdate = Translate::orderBy('updated_at', 'DESC')
                 ->first(['updated_at'])->updated_at->format('U');
         }
 
