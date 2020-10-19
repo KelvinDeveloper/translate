@@ -3,6 +3,7 @@
 namespace Translate\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Translate\Translate;
 
 class TranslateProvider extends ServiceProvider
 {
@@ -44,5 +45,9 @@ class TranslateProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/google-translate.php', 'google-translate');
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         $loader->alias('AWS', 'Aws\Laravel\AwsFacade');
+        
+        $this->app->singleton('Translate', function () {
+            return new Translate();
+        });
     }
 }
