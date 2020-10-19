@@ -16,7 +16,7 @@ class Translate extends Model
         $this->fillable = array_merge(config('translate.languages'));
     }
 
-    public static function changeLanguage ($lang)
+    public function changeLanguage ($lang)
     {
         $lang = strtolower(trim($lang));
 
@@ -31,7 +31,7 @@ class Translate extends Model
         return TranslateController::setLanguage( $lang);
     }
 
-    public static function getLocale()
+    public function getLocale()
     {
         return TranslateController::getLanguage();
     }
