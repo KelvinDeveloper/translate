@@ -177,7 +177,7 @@ class TranslateController extends Controller
         return response('var Lang = ' . json_encode($json))->header('Content-Type', 'application/javascript');
     }
 
-    private function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
+    public function getTranslateGoogle ($text, $sourceLanguageCode, $targetLanguageCode)
     {
         if (! in_array($targetLanguageCode, config('translate.languages'))) abort(500, "Code {$targetLanguageCode} not supported");
 
@@ -194,7 +194,7 @@ class TranslateController extends Controller
         }
     }
 
-    private function getTranslateAws ($text, $sourceLanguageCode, $targetLanguageCode)
+    public function getTranslateAws ($text, $sourceLanguageCode, $targetLanguageCode)
     {
         try {
             $aws = \AWS::createClient('translate');
