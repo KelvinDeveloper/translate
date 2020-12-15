@@ -14,6 +14,12 @@ use Translate\TranslateVerified;
 class TranslateManager extends Controller{
 
     use TranslateStore;
+    
+    public function __construct()
+    {
+        $cache_driver = "Translate\Console\Drivers\Translate" . ucfirst(config('translate.cache_driver'));
+        $this->cache_driver     = new $cache_driver;
+    }
 
     public function index ($translate_lang=null)
     {
