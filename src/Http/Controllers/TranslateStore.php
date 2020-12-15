@@ -10,7 +10,7 @@ trait TranslateStore
     private function saveTranslate($sourceLanguageText, $targetLanguageText, $sourceLanguageCode, $targetLanguageCode)
     {
         $this->saveTranslateDatabase($sourceLanguageText, $targetLanguageText, $sourceLanguageCode, $targetLanguageCode);
-        $this->saveTranslateRedis($sourceLanguageText, $targetLanguageText, $targetLanguageCode);
+        #$this->saveTranslateRedis($sourceLanguageText, $targetLanguageText, $targetLanguageCode);
     }
 
     private function saveTranslateDatabase($sourceLanguageText, $targetLanguageText, $sourceLanguageCode, $targetLanguageCode)
@@ -30,6 +30,6 @@ trait TranslateStore
 
     private function saveTranslateRedis($sourceLanguageText, $targetLanguageText, $targetLanguageCode)
     {
-        return \Redis::set("translate.{$targetLanguageCode}.{$sourceLanguageText}", $targetLanguageText);
+        return $this->cache_driver->put("translate.{$targetLanguageCode}.{$sourceLanguageText}", $targetLanguageText);
     }
 }
