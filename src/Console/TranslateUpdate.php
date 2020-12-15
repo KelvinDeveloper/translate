@@ -4,6 +4,7 @@ namespace Translate\Console;
 
 use Illuminate\Console\Command;
 use Translate\Translate;
+use Illuminate\Support\Str;
 
 class TranslateUpdate extends Command
 {
@@ -87,6 +88,6 @@ class TranslateUpdate extends Command
 
     private function treatmentPath($path)
     {
-        return \Str::finish($path, '/');
+        return Str::finish($path, '/');
     }
 }
