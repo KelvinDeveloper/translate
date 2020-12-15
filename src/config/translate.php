@@ -11,6 +11,12 @@ return [
         'app/Http/Controllers/',
         'resources/views/'
     ],
+    'credentials' => [
+        'aws' => [
+            'key' => env('AWS_TRANSLATE_KEY', ''),
+            'secret' => env('AWS_TRANSLATE_SECRET', ''),
+        ]
+    ],
     /* Language Support (Google Translate) */
     'languages' => [
         'Afrikaans'             => 'af',
