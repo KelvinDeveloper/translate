@@ -87,6 +87,6 @@ class TranslateUpdate extends Command
 
     private function treatmentPath($path)
     {
-        return str_finish($path, '/');
+        return \Str::finish($path, '/');
     }
 }
