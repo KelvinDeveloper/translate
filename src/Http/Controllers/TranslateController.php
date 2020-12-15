@@ -197,7 +197,14 @@ class TranslateController extends Controller
     public function getTranslateAws ($text, $sourceLanguageCode, $targetLanguageCode)
     {
         try {
-            $aws = \AWS::createClient('translate');
+            $aws = new \Aws\Translate\TranslateClient([
+                'region' => 'us-east-1',
+                'version' => 'latest',
+                'credentials' => [
+                    'key'    => config('translate.credentials.aws.key'),
+                    'secret' => config('translate.credentials.aws.secret') ,
+                ]
+            ]);
             $translate = $aws->translateText([
                 'SourceLanguageCode'    =>  $sourceLanguageCode,
                 'TargetLanguageCode'    =>  $targetLanguageCode,
